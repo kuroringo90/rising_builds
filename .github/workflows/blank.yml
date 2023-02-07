@@ -1,0 +1,52 @@
+name: riceDroid Build
+permissions: write-all
+on:
+    workflow_dispatch:
+        inputs:
+            device:
+                description: 'Device'
+                required: true
+                default: 'vayu'
+                type: choice
+                options:
+                - vayu
+            variant:
+                description: 'Build variant'
+                required: true
+                default: 'gapps'
+                type: choice
+                options:
+                - vanilla
+                - gapps
+
+jobs:
+    riceDroid-Build:
+      runs-on: self-hosted
+      if: ${{ inputs.device }}
+      steps:
+        - name: Verify the environment
+          run: |
+            if [ $UID -eq 0 ]; then echo "Running as root, aborting"; exit 1; else echo "Running as $USER"; fi
+        - name: Get current date
+          id: date
+          run: |
+            echo "::set-output name=date::$(date +'%Y-%m-%d--%H-%M-%S')"
+        - name: Run the build
+          run: |
+            cd ~/rice/
+            echo "Building for ${{ inputs.device }}"
+            variant=${{ inputs.variant }}
+            if [[ $variant == "vanilla" ]]; then echo "Building vanilla variant"; elif [[ $variant == "gapps" ]]; then echo "Building gapps variant"; export WITH_GMS=true; else echo "Unknown variant, falling back to vanilla"; fi
+          
+            source build/envsetup.sh
+            lunch lineage_${{ inputs.device }}-userdebug
+            mka bacon -j$(nproc --all)
+            cp out/target/product/${{ inputs.device }}/riceDroid*.zip* ${GITHUB_WORKSPACE}
+        - uses: "marvinpinto/action-automatic-releases@latest"
+          with:
+            repo_token: "${{ secrets.GITHUB_TOKEN }}"
+            title: "riceDroid Build ${{ inputs.variant }}"
+            prerelease: false
+            automatic_release_tag: "${{ inputs.device }}-${{ steps.date.outputs.date }}"
+            files: |
+                riceDroid*.zip*
