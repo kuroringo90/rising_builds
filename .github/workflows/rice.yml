@@ -41,7 +41,7 @@ jobs:
             source build/envsetup.sh
             lunch lineage_${{ inputs.device }}-userdebug
             mka bacon -j$(nproc --all)
-            cp out/target/product/${{ inputs.device }}/riceDroid*.zip* ${GITHUB_WORKSPACE}
+            cp out/target/product/${{ inputs.device }}/riceDroid*${{ inputs.variant }}*.zip* ${GITHUB_WORKSPACE}
         - uses: "marvinpinto/action-automatic-releases@latest"
           with:
             repo_token: "${{ secrets.GITHUB_TOKEN }}"
@@ -49,4 +49,4 @@ jobs:
             prerelease: false
             automatic_release_tag: "${{ inputs.device }}-${{ steps.date.outputs.date }}"
             files: |
-                riceDroid*.zip*
+                riceDroid*${{ inputs.variant }}*.zip*
