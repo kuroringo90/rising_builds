@@ -18,7 +18,16 @@ on:
                 options:
                 - AOSP
                 - PIXEL
-
+                
+            cleanstrategy:
+                description: 'Select Clean strategy'
+                required: true
+                default: 'no'
+                type: choice
+                options:
+                - no
+                - installclean
+                - clobber
 jobs:
     riceDroid-Build:
       runs-on: self-hosted
@@ -31,6 +40,15 @@ jobs:
           id: date
           run: |
             echo "::set-output name=date::$(date +'%Y-%m-%d--%H-%M-%S')"
+        - name: Clean Strategy
+          run: | 
+           cd ~/rice/
+           if [[ $cleanstrategy == "installclean" ]]; then echo "Make install clean";  
+           source build/envsetup.sh; lunch lineage_${{ inputs.device }}-userdebug; mka installclean;
+           elif [[ $cleanstrategy == "clobber" ]];  then echo "Make clobber";
+           source build/envsetup.sh; lunch lineage_${{ inputs.device }}-userdebug; mka clobber;
+           elif [[ $cleanstrategy == "no" ]];  then echo "DIRTY BUILD";
+           fi
         - name: Run the build
           run: |
             cd ~/rice/
