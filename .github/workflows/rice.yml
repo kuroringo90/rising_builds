@@ -25,7 +25,7 @@ on:
                 default: 'no'
                 type: choice
                 options:
-                - no
+                - nope
                 - installclean
                 - clobber
 jobs:
@@ -47,7 +47,7 @@ jobs:
            source build/envsetup.sh; lunch lineage_${{ inputs.device }}-userdebug; mka installclean;
            elif [[ $cleanstrategy == "clobber" ]];  then echo "Make clobber";
            source build/envsetup.sh; lunch lineage_${{ inputs.device }}-userdebug; mka clobber;
-           elif [[ $cleanstrategy == "no" ]];  then echo "DIRTY BUILD";
+           elif [[ $cleanstrategy == "nope" ]];  then echo "DIRTY BUILD";
            fi
         - name: Run the build
           run: |
