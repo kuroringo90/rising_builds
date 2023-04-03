@@ -1,4 +1,4 @@
-name: riceDroid Build
+name: RisingOS Build
 permissions: write-all
 on:
     workflow_dispatch:
@@ -10,15 +10,6 @@ on:
                 type: choice
                 options:
                 - vayu
-            variant:
-                description: 'Build variant'
-                required: true
-                default: 'PIXEL'
-                type: choice
-                options:
-                - AOSP
-                - PIXEL
-                
             cleanstrategy:
                 description: 'Select Clean strategy'
                 required: true
@@ -42,29 +33,27 @@ jobs:
             echo "::set-output name=date::$(date +'%Y-%m-%d--%H-%M-%S')"
         - name: Clean Strategy
           run: | 
-           cd ~/rice/
+           cd ~/rising/
            if [[ $cleanstrategy == "installclean" ]]; then echo "Make install clean";  
-           source build/envsetup.sh; lunch lineage_${{ inputs.device }}-userdebug; mka installclean;
+           source build/envsetup.sh; lunch lineage_${{ inputs.device }}-userdebug; make installclean;
            elif [[ $cleanstrategy == "clobber" ]];  then echo "Make clobber";
-           source build/envsetup.sh; lunch lineage_${{ inputs.device }}-userdebug; mka clobber;
+           source build/envsetup.sh; lunch lineage_${{ inputs.device }}-userdebug; make clobber;
            elif [[ $cleanstrategy == "nope" ]];  then echo "DIRTY BUILD";
            fi
         - name: Run the build
           run: |
-            cd ~/rice/
+            cd ~/rising/
             echo "Building for ${{ inputs.device }}"
-            variant=${{ inputs.variant }}
-            if [[ $variant == "AOSP" ]]; then echo "Building vanilla variant"; export WITH_GMS=false ; elif [[ $variant == "PIXEL" ]]; then echo "Building gapps variant"; export WITH_GMS=true; else echo "Unknown variant, falling back to vanilla"; fi
-          
+
             source build/envsetup.sh
             lunch lineage_${{ inputs.device }}-userdebug
             mka bacon -j$(nproc --all)
-            cp out/target/product/${{ inputs.device }}/riceDroid*${{ inputs.variant }}*.zip* ${GITHUB_WORKSPACE}
+            cp out/target/product/${{ inputs.device }}/rising*.zip* ${GITHUB_WORKSPACE}
         - uses: "marvinpinto/action-automatic-releases@latest"
           with:
             repo_token: "${{ secrets.GITHUB_TOKEN }}"
-            title: "riceDroid Build ${{ inputs.variant }}"
+            title: "Rising Build ${{ inputs.variant }}"
             prerelease: false
             automatic_release_tag: "${{ inputs.device }}-${{ steps.date.outputs.date }}"
             files: |
-                riceDroid*${{ inputs.variant }}*.zip*
+                rising*.zip*
