@@ -52,7 +52,7 @@ jobs:
         - uses: "marvinpinto/action-automatic-releases@latest"
           with:
             repo_token: "${{ secrets.GITHUB_TOKEN }}"
-            title: "Rising Build ${{ inputs.variant }}"
+            title: "Rising Build"
             prerelease: false
             automatic_release_tag: "${{ inputs.device }}-${{ steps.date.outputs.date }}"
             files: |
