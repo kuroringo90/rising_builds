@@ -31,6 +31,8 @@ jobs:
           id: date
           run: |
             echo "::set-output name=date::$(date +'%Y-%m-%d--%H-%M-%S')"
+        - name: Clean Workspace
+          uses: AutoModality/action-clean@v1.1.0
         - name: Clean Strategy
           run: | 
            cd ~/rising/
