@@ -1,4 +1,4 @@
-name: RisingOS Build
+name: octaviOS Build
 permissions: write-all
 on:
     workflow_dispatch:
@@ -33,30 +33,30 @@ jobs:
             echo "::set-output name=date::$(date +'%Y-%m-%d--%H-%M-%S')"
         - name: Clean Workspace
           run: | 
-            rm -f ${GITHUB_WORKSPACE}/rising*.zip*
+            rm -f ${GITHUB_WORKSPACE}/OctaviOS*.zip*
         - name: Clean Strategy
           run: | 
-           cd ~/rising/
+           cd ~/octavi/
            if [[ $cleanstrategy == "installclean" ]]; then echo "Make install clean";  
-           source build/envsetup.sh; lunch lineage_${{ inputs.device }}-userdebug; make installclean;
+           source build/envsetup.sh && lunch lineage_${{ inputs.device }}-userdebug && make installclean;
            elif [[ $cleanstrategy == "clobber" ]];  then echo "Make clobber";
-           source build/envsetup.sh; lunch lineage_${{ inputs.device }}-userdebug; make clobber;
+           source build/envsetup.sh && lunch lineage_${{ inputs.device }}-userdebug $$ make clobber;
            elif [[ $cleanstrategy == "nope" ]];  then echo "DIRTY BUILD";
            fi
         - name: Run the build
           run: |
-            cd ~/rising/
+            cd ~/octavi/
             echo "Building for ${{ inputs.device }}"
 
             source build/envsetup.sh
             lunch lineage_${{ inputs.device }}-userdebug
             mka bacon -j$(nproc --all)
-            cp out/target/product/${{ inputs.device }}/rising*.zip* ${GITHUB_WORKSPACE}
+            cp out/target/product/${{ inputs.device }}/OctaviOS*.zip* ${GITHUB_WORKSPACE}
         - uses: "marvinpinto/action-automatic-releases@latest"
           with:
             repo_token: "${{ secrets.GITHUB_TOKEN }}"
-            title: "Rising Build"
+            title: "octavi Build"
             prerelease: false
             automatic_release_tag: "${{ inputs.device }}-${{ steps.date.outputs.date }}"
             files: |
-                rising*.zip*
+                OctaviOS*.zip*
