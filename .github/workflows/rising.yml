@@ -36,7 +36,7 @@ jobs:
             rm -rf ${GITHUB_WORKSPACE}/*.*
         - name: Clean Strategy
           run: | 
-           cd ~/octavi/
+           cd ~/rising/
            if [[ ${{ inputs.cleanstrategy }} == "installclean" ]]; then echo "Make install clean";  
            source build/envsetup.sh && lunch octavi_${{ inputs.device }}-userdebug && make installclean;
            elif [[ ${{ inputs.cleanstrategy }} == "clobber" ]];  then echo "Make clobber";
