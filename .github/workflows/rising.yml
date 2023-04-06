@@ -38,9 +38,9 @@ jobs:
           run: | 
            cd ~/rising/
            if [[ ${{ inputs.cleanstrategy }} == "installclean" ]]; then echo "Make install clean";  
-           source build/envsetup.sh && lunch octavi_${{ inputs.device }}-userdebug && make installclean;
+           source build/envsetup.sh && lunch lineage_${{ inputs.device }}-userdebug && make installclean;
            elif [[ ${{ inputs.cleanstrategy }} == "clobber" ]];  then echo "Make clobber";
-           source build/envsetup.sh && lunch octavi_${{ inputs.device }}-userdebug $$ make clobber;
+           source build/envsetup.sh && lunch lineage_${{ inputs.device }}-userdebug $$ make clobber;
            elif [[ ${{ inputs.cleanstrategy }} == "nope" ]];  then echo "DIRTY BUILD";
            fi
         - name: Run the build
