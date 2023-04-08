@@ -30,7 +30,7 @@ on:
                 - installclean
                 - clobber
 jobs:
-    riceDroid-Build:
+    RisingOS-Build:
       runs-on: self-hosted
       if: ${{ inputs.device }}
       steps:
