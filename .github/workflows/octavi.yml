@@ -1,0 +1,71 @@
+name: octaviOS Build
+permissions: write-all
+on:
+    workflow_dispatch:
+        inputs:
+            device:
+                description: 'Device'
+                required: true
+                default: 'vayu'
+                type: choice
+                options:
+                - vayu
+            cleanstrategy:
+                description: 'Select Clean strategy'
+                required: true
+                default: 'no'
+                type: choice
+                options:
+                - nope
+                - installclean
+                - clobber
+            variant:
+                description: 'Build variant'
+                required: true
+                default: 'GAPPS'
+                type: choice
+                options:
+                - AOSP
+                - GAPPS
+jobs:
+    OctaviOS-Build:
+      runs-on: self-hosted
+      if: ${{ inputs.device }}
+      steps:
+        - name: Verify the environment
+          run: |
+            if [ $UID -eq 0 ]; then echo "Running as root, aborting"; exit 1; else echo "Running as $USER"; fi
+        - name: Get current date
+          id: date
+          run: |
+            echo "::set-output name=date::$(date +'%Y-%m-%d--%H-%M-%S')"
+        - name: Clean Workspace
+          run: | 
+            rm -rf ${GITHUB_WORKSPACE}/*.*
+        - name: Clean Strategy
+          run: | 
+           cd ~/octavi/
+           if [[ ${{ inputs.cleanstrategy }} == "installclean" ]]; then echo "Make install clean";  
+           source build/envsetup.sh && lunch octavi_${{ inputs.device }}-userdebug && make installclean;
+           elif [[ ${{ inputs.cleanstrategy }} == "clobber" ]];  then echo "Make clobber";
+           source build/envsetup.sh && lunch octavi_${{ inputs.device }}-userdebug $$ make clobber;
+           elif [[ ${{ inputs.cleanstrategy }} == "nope" ]];  then echo "DIRTY BUILD";
+           fi
+        - name: Run the build
+          run: |
+            cd ~/octavi/
+            echo "Building for ${{ inputs.device }}"
+            variant=${{ inputs.variant }}
+            if [[ ${{ inputs.variant }} == "AOSP" ]]; then echo "Building vanilla variant"; export WITH_GAPPS=false ; elif [[ ${{ inputs.variant }} == "GAPPS" ]]; then echo "Building gapps variant"; export WITH_GAPPS=true; else echo "Unknown variant, falling back to vanilla"; fi
+            source build/envsetup.sh
+            lunch octavi_${{ inputs.device }}-userdebug
+            brunch vayu
+            cp out/target/product/${{ inputs.device }}/OctaviOS*.zip* ${GITHUB_WORKSPACE}
+        - uses: "marvinpinto/action-automatic-releases@latest"
+          with:
+            repo_token: "${{ secrets.GITHUB_TOKEN }}"
+            title: "OctaviOS ${{ inputs.variant }}"
+            prerelease: false
+            automatic_release_tag: "${{ inputs.device }}-${{ steps.date.outputs.date }}"
+            files: |
+                OctaviOS*${{ inputs.variant }}*.zip*
