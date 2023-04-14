@@ -18,7 +18,7 @@ on:
                 type: choice
                 options:
                 - AOSP
-                - PIXEL
+                - GAPPS
                 
             cleanstrategy:
                 description: 'Select Clean strategy'
@@ -58,7 +58,7 @@ jobs:
             cd ~/rising/
             echo "Building for ${{ inputs.device }}"
             variant=${{ inputs.variant }}
-            if [[ ${{ inputs.variant }} == "AOSP" ]]; then echo "Building vanilla variant"; export WITH_GMS=false ; elif [[ ${{ inputs.variant }} == "PIXEL" ]]; then echo "Building gapps variant"; export WITH_GMS=true; else echo "Unknown variant, falling back to vanilla"; fi
+            if [[ ${{ inputs.variant }} == "AOSP" ]]; then echo "Building vanilla variant"; export WITH_GMS=false ; elif [[ ${{ inputs.variant }} == "GAPPS" ]]; then echo "Building gapps variant"; export WITH_GMS=true; else echo "Unknown variant, falling back to vanilla"; fi
             source build/envsetup.sh
             export GLOBAL_THINLTO=false
             lunch lineage_${{ inputs.device }}-userdebug
